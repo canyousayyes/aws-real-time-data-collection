@@ -33,11 +33,18 @@ Resources:
       DatabaseName: !Ref DatabaseName
       TableInput:
         Name: !Ref TableName
+        Owner: owner
+        Retention: 0
         TableType: EXTERNAL_TABLE
+        Parameters:
+          compressionType: none
+          classification: parquet
         StorageDescriptor:
           StoredAsSubDirectories: false
           InputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
           OutputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+          BucketColumns: []
+          NumberOfBuckets: -1
           SerdeInfo:
             SerializationLibrary: "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
             Parameters:
@@ -66,10 +73,7 @@ Resources:
   FirehoseDeliveryRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join
-        - ""
-        - - !Ref FirehoseName
-          - "-firehose"
+      RoleName: !Sub "${FirehoseName}-firehose"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
