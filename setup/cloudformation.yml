@@ -1,0 +1,89 @@
+Description: "Create firehose for realtime data collection"
+
+Parameters:
+  FirehoseName:
+    Description: Firehose Delivery Stream Name.
+    Type: String
+    Default: sample-data-collection
+
+  FirehoseToS3Prefix:
+    Description: Prefix string to when Firehose delivered the data to S3.
+    Type: String
+    Default: sample-data/
+
+  BucketName:
+    Description: S3 bucket name for storing the collected data.
+    Type: String
+
+Resources:
+  FirehoseDeliveryRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join
+        - ""
+        - - !Ref FirehoseName
+          - "-firehose"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "firehose.amazonaws.com"
+            Action:
+              - "sts:AssumeRole"
+            Condition:
+              StringEquals:
+                "sts:ExternalId": !Ref "AWS::AccountId"
+      Policies:
+        - PolicyName: "FirehoseAccess"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "glue:GetTableVersions"
+                Resource: "*"
+              - Effect: "Allow"
+                Action:
+                  - "s3:AbortMultipartUpload"
+                  - "s3:GetBucketLocation"
+                  - "s3:GetObject"
+                  - "s3:ListBucket"
+                  - "s3:ListBucketMultipartUploads"
+                  - "s3:PutObject"
+                Resource:
+                  - !Sub "arn:aws:s3:::${BucketName}"
+                  - !Sub "arn:aws:s3:::${BucketName}/*"
+              - Effect: "Allow"
+                Action: "logs:PutLogEvents"
+                Resource: !GetAtt FirehoseLogGroup.Arn
+
+  FirehoseLogGroup:
+    Type: "AWS::Logs::LogGroup"
+    Properties:
+      LogGroupName: !Sub "/aws/kinesisfirehose/${FirehoseName}"
+
+  FirehoseS3DeliveryLogStream:
+    Type: "AWS::Logs::LogStream"
+    DependsOn: FirehoseLogGroup
+    Properties:
+      LogGroupName: !Ref FirehoseLogGroup
+      LogStreamName: S3Delivery
+
+  Firehose:
+    Type: "AWS::KinesisFirehose::DeliveryStream"
+    Properties:
+      DeliveryStreamName: !Ref FirehoseName
+      DeliveryStreamType: DirectPut
+      ExtendedS3DestinationConfiguration:
+        BucketARN: !Sub "arn:aws:s3:::${BucketName}"
+        BufferingHints:
+          IntervalInSeconds: 60
+          SizeInMBs: 64
+        CompressionFormat: UNCOMPRESSED # Necessary for data format conversion
+        CloudWatchLoggingOptions:
+          Enabled: true
+          LogGroupName: !Ref FirehoseLogGroup
+          LogStreamName: S3Delivery
+        Prefix: !Ref FirehoseToS3Prefix
+        RoleARN: !GetAtt FirehoseDeliveryRole.Arn
