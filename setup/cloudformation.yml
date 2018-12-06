@@ -9,13 +9,60 @@ Parameters:
   FirehoseToS3Prefix:
     Description: Prefix string to when Firehose delivered the data to S3.
     Type: String
-    Default: sample-data/
+    Default: sample_data/
+
+  DatabaseName:
+    Description: Glue database name to store the GlueTable.
+    Type: String
+    Default: default
+
+  TableName:
+    Description: Glue table name. For querying the collected data.
+    Type: String
+    Default: sample_data
 
   BucketName:
     Description: S3 bucket name for storing the collected data.
     Type: String
 
 Resources:
+  GlueTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref "AWS::AccountId"
+      DatabaseName: !Ref DatabaseName
+      TableInput:
+        Name: !Ref TableName
+        TableType: EXTERNAL_TABLE
+        StorageDescriptor:
+          StoredAsSubDirectories: false
+          InputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+          OutputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+          SerdeInfo:
+            SerializationLibrary: "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+            Parameters:
+              "serialization.format": "1"
+          Compressed: false
+          Location: !Sub "s3://${BucketName}/${FirehoseToS3Prefix}"
+          Columns:
+            - Name: ticker_symbol
+              Type: string
+            - Name: sector
+              Type: string
+            - Name: change
+              Type: double
+            - Name: price
+              Type: double
+        PartitionKeys:
+          - Name: year
+            Type: string
+          - Name: month
+            Type: string
+          - Name: day
+            Type: string
+          - Name: hour
+            Type: string
+
   FirehoseDeliveryRole:
     Type: AWS::IAM::Role
     Properties:
