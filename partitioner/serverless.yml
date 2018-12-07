@@ -1,0 +1,48 @@
+---
+
+service: SampleDataPartitioner
+
+plugins:
+  - serverless-plugin-existing-s3
+
+custom:
+  bucketName: ""
+  sourcePrefix: sample_data_firehose
+  targetPrefix: sample_data
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 128
+  timeout: 10
+
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "s3:ListBucket"
+        - "s3:ListBucketVersions"
+        - "s3:GetObject"
+        - "s3:GetObjectVersion"
+        - "s3:PutObject"
+      Resource:
+        - "arn:aws:s3:::${self:custom.bucketName}"
+        - "arn:aws:s3:::${self:custom.bucketName}/*"
+
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    BUCKET_NAME: ${self:custom.bucketName}
+    TARGET_PREFIX: ${self:custom.targetPrefix}
+
+functions:
+  main:
+    handler: src/handler.main
+    events:
+      - existingS3:
+          bucket: ${self:custom.bucketName}
+          events:
+            - s3:ObjectCreated:*
+          rules:
+            - prefix: ${self:custom.sourcePrefix}/

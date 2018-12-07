@@ -1,0 +1,9 @@
+{
+  "name": "aws-realtime-data-collection-partitioner",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "aws-sdk": "^2.371.0",
+    "serverless-plugin-existing-s3": "^2.2.2"
+  }
+}
