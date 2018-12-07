@@ -1,0 +1,36 @@
+---
+
+service: SampleDataCollector
+
+custom:
+  firehoseName: sample-data-collection
+  awsAccountId: "FILL_ME"
+
+provider:
+  name: aws
+  runtime: nodejs8.10
+  memorySize: 128
+  timeout: 10
+
+  stage: ${opt:stage, 'dev'}
+  region: us-west-2
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - "firehose:PutRecord"
+        - "firehose:PutRecordBatch"
+      Resource:
+        - "arn:aws:firehose:us-west-2:${self:custom.awsAccountId}:deliverystream/${self:custom.firehoseName}"
+
+  environment:
+    NODE_ENV: ${self:provider.stage}
+    FIREHOSE_NAME: ${self:custom.firehoseName}
+
+functions:
+  main:
+    handler: src/handler.main
+    events:
+      - http:
+          path: /collect
+          method: POST
