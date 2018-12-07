@@ -19,7 +19,7 @@ Parameters:
   DataTableS3Prefix:
     Description: S3 prefix for re-partitioned data.
     Type: String
-    Default: sample_data_firehose
+    Default: sample_data
 
   DataTableName:
     Description: Table name of the re-partitioned data.
@@ -78,7 +78,7 @@ Resources:
               Type: string
               Comment: Additional information of the event
         PartitionKeys:
-          - Name: partition_data
+          - Name: partition_date
             Type: string
           - Name: partition_hour
             Type: string
