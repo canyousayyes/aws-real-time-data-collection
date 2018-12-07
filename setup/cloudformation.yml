@@ -64,14 +64,19 @@ Resources:
           Columns:
             - Name: ts
               Type: bigint
+              Comment: UNIX timestamp in milliseconds of the event
             - Name: uid
               Type: string
+              Comment: Unique identifier of the user
             - Name: category
               Type: string
+              Comment: Event group name
             - Name: action
               Type: string
+              Comment: Event interaction type
             - Name: label
               Type: string
+              Comment: Additional information of the event
         PartitionKeys:
           - Name: partition_data
             Type: string
@@ -106,14 +111,19 @@ Resources:
           Columns:
             - Name: ts
               Type: bigint
+              Comment: UNIX timestamp in milliseconds of the event
             - Name: uid
               Type: string
+              Comment: Unique identifier of the user
             - Name: category
               Type: string
+              Comment: Event group name
             - Name: action
               Type: string
+              Comment: Event interaction type
             - Name: label
               Type: string
+              Comment: Additional information of the event
         PartitionKeys:
           - Name: year
             Type: string
