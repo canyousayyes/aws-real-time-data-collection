@@ -7,32 +7,84 @@ Parameters:
     Default: sample-data-collection
 
   FirehoseToS3Prefix:
-    Description: Prefix string to when Firehose delivered the data to S3.
+    Description: S3 prefix for Firehose to deliver data to S3.
     Type: String
-    Default: sample_data/
+    Default: sample_data_firehose/
 
-  DatabaseName:
-    Description: Glue database name to store the GlueTable.
+  FirehoseTableName:
+    Description: Table name of the firehose imported data.
     Type: String
-    Default: default
+    Default: sample_data_firehose
 
-  TableName:
-    Description: Glue table name. For querying the collected data.
+  DataTableS3Prefix:
+    Description: S3 prefix for re-partitioned data.
+    Type: String
+    Default: sample_data_firehose
+
+  DataTableName:
+    Description: Table name of the re-partitioned data.
     Type: String
     Default: sample_data
+
+  DatabaseName:
+    Description: Glue database name to store the glue tables.
+    Type: String
+    Default: default
 
   BucketName:
     Description: S3 bucket name for storing the collected data.
     Type: String
 
 Resources:
-  GlueTable:
+  DataTable:
     Type: AWS::Glue::Table
     Properties:
       CatalogId: !Ref "AWS::AccountId"
       DatabaseName: !Ref DatabaseName
       TableInput:
-        Name: !Ref TableName
+        Name: !Ref DataTableName
+        Owner: owner
+        Retention: 0
+        TableType: EXTERNAL_TABLE
+        Parameters:
+          compressionType: none
+          classification: parquet
+        StorageDescriptor:
+          StoredAsSubDirectories: false
+          InputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetInputFormat"
+          OutputFormat: "org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat"
+          BucketColumns: []
+          NumberOfBuckets: -1
+          SerdeInfo:
+            SerializationLibrary: "org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe"
+            Parameters:
+              "serialization.format": "1"
+          Compressed: false
+          Location: !Sub "s3://${BucketName}/${DataTableS3Prefix}"
+          Columns:
+            - Name: ts
+              Type: bigint
+            - Name: uid
+              Type: string
+            - Name: category
+              Type: string
+            - Name: action
+              Type: string
+            - Name: label
+              Type: string
+        PartitionKeys:
+          - Name: partition_data
+            Type: string
+          - Name: partition_hour
+            Type: string
+
+  FirehoseTable:
+    Type: AWS::Glue::Table
+    Properties:
+      CatalogId: !Ref "AWS::AccountId"
+      DatabaseName: !Ref DatabaseName
+      TableInput:
+        Name: !Ref FirehoseTableName
         Owner: owner
         Retention: 0
         TableType: EXTERNAL_TABLE
@@ -52,14 +104,16 @@ Resources:
           Compressed: false
           Location: !Sub "s3://${BucketName}/${FirehoseToS3Prefix}"
           Columns:
-            - Name: ticker_symbol
+            - Name: ts
+              Type: bigint
+            - Name: uid
               Type: string
-            - Name: sector
+            - Name: category
               Type: string
-            - Name: change
-              Type: double
-            - Name: price
-              Type: double
+            - Name: action
+              Type: string
+            - Name: label
+              Type: string
         PartitionKeys:
           - Name: year
             Type: string
