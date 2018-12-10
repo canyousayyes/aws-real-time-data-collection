@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Sample App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17"></script>
+    <script src="script.js"></script>
+  </head>
+  <body>
+    <h1>Sample Web Client for Real Time Data Collection Pipeline</h1>
+    <div id="app">
+      <p>
+        <span>Tracking endpoint: </span>
+        <input id="endpoint" v-model="endpoint" />
+      </p>
+
+      <p>
+        <span>Current UID: </span>
+        <span id="uid">{{ uid }}</span>
+        <button @click="getNewUid">Get a new one</button>
+      </p>
+
+      <p>
+        <button @click="fireViewEvents">Fire View Events</button>
+        <button @click="fireClickEvents">Fire Click Events</button>
+        <span class="error">{{ errorMessage }}</span>
+      </p>
+
+      <div>
+        <h3>Fired Events:</h3>
+        <table>
+          <thead>
+            <th>Date</th>
+            <th>Timestamp</th>
+            <th>UID</th>
+            <th>Category</th>
+            <th>Action</th>
+            <th>Label</th>
+          </thead>
+          <tbody>
+            <tr v-for="event in firedEvents">
+              <td>{{ (new Date(event.ts)).toISOString() }}</td>
+              <td>{{ event.ts }}</td>
+              <td>{{ event.uid }}</td>
+              <td>{{ event.category }}</td>
+              <td>{{ event.action }}</td>
+              <td>{{ event.label }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

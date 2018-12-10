@@ -1,0 +1,35 @@
+body {
+  padding-top: 30px;
+  padding-left: 60px;
+  font: 16px sans-serif;
+}
+
+button {
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid black;
+}
+
+th, td {
+  padding: 10px;
+}
+
+#endpoint {
+  width: 600px;
+  font-size: 14px;
+}
+
+#uid {
+  font-family: Monaco, "Ubuntu Mono", "Courier New";
+}
+
+.error {
+  color: red;
+}
