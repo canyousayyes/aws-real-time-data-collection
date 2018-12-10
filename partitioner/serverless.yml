@@ -8,9 +8,8 @@ plugins:
 custom:
   bucketName: ""
   sourcePrefix: sample_data_firehose
-  targetPrefix: sample_data
   database: default
-  table: sample_data
+  table: sample_data_firehose
 
 provider:
   name: aws
@@ -26,8 +25,6 @@ provider:
       Action:
         - "s3:ListBucket"
         - "s3:ListBucketVersions"
-        - "s3:ListObjects"
-        - "s3:ListObjectsV2"
         - "s3:GetObject"
         - "s3:GetObjectVersion"
         - "s3:PutObject"
@@ -37,13 +34,18 @@ provider:
     - Effect: Allow
       Action:
         - "athena:StartQueryExecution"
+        - "glue:GetDatabase"
+        - "glue:GetDatabases"
+        - "glue:GetTable"
+        - "glue:GetTables"
+        - "glue:BatchCreatePartition"
+        - "glue:CreatePartition"
       Resource:
         - "*"
 
   environment:
     NODE_ENV: ${self:provider.stage}
     BUCKET_NAME: ${self:custom.bucketName}
-    TARGET_PREFIX: ${self:custom.targetPrefix}
     DATABASE: ${self:custom.database}
     TABLE: ${self:custom.table}
 
