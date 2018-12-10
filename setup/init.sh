@@ -12,6 +12,7 @@ fi
 BUCKET_NAME=$1
 STACK_NAME=$2
 AWS_REGION=${3:-"us-west-2"}
+FIREHOSE_NAME="sample_data_firehose"
 
 
 echo "Checking if S3 bucket $BUCKET_NAME exists ..."
@@ -71,5 +72,15 @@ do
 
   sleep 5
 done
+
+
+echo "Updating Firhose Format Conversion ..."
+FIREHOSE_VERSION=`aws firehose describe-delivery-stream --delivery-stream-name $FIREHOSE_NAME --query "DeliveryStreamDescription.VersionId" | tr -d '""'`
+FIREHOSE_DST_ID=`aws firehose describe-delivery-stream --delivery-stream-name $FIREHOSE_NAME --query "DeliveryStreamDescription.Destinations[0].DestinationId" | tr -d '""'`
+aws firehose update-destination \
+  --delivery-stream-name $FIREHOSE_NAME \
+  --current-delivery-stream-version-id $FIREHOSE_VERSION \
+  --destination-id $FIREHOSE_DST_ID \
+  --extended-s3-destination-update file://`pwd`/update_destination.json
 
 echo "Done."

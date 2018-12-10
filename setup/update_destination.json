@@ -1,0 +1,22 @@
+{
+  "DataFormatConversionConfiguration": {
+    "Enabled": true,
+    "SchemaConfiguration": {
+      "RoleARN": "arn:aws:iam::714417329994:role/sample_data_firehose_role",
+      "Region": "us-west-2",
+      "DatabaseName": "default",
+      "TableName": "sample_data_firehose",
+      "VersionId": "LATEST"
+    },
+    "InputFormatConfiguration": {
+      "Deserializer": {
+        "OpenXJsonSerDe": {}
+      }
+    },
+    "OutputFormatConfiguration": {
+      "Serializer": {
+        "ParquetSerDe": {}
+      }
+    }
+  }
+}

@@ -1,10 +1,10 @@
-Description: "Create firehose for realtime data collection"
+Description: "Sample stack for realtime data collection."
 
 Parameters:
   FirehoseName:
     Description: Firehose Delivery Stream Name.
     Type: String
-    Default: sample-data-collection
+    Default: sample_data_firehose
 
   FirehoseToS3Prefix:
     Description: S3 prefix for Firehose to deliver data to S3.
@@ -137,7 +137,7 @@ Resources:
   FirehoseDeliveryRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub "${FirehoseName}-firehose"
+      RoleName: !Sub "${FirehoseName}_role"
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
