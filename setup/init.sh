@@ -3,9 +3,16 @@ set -e
 trap 'echo "ERROR: $BASH_SOURCE:$LINENO $BASH_COMMAND" >&2' ERR
 cd $(dirname $(realpath $0))
 
-BUCKET_NAME="sample-data-collection"
-STACK_NAME="RealTimeDataCollectionPipeline"
-AWS_REGION="us-west-2"
+if [[ $# -lt 2 ]];
+then
+  echo "Usage: $0 <bucket-name> <stack-name> [region-name]"
+  exit 1
+fi
+
+BUCKET_NAME=$1
+STACK_NAME=$2
+AWS_REGION=${3:-"us-west-2"}
+
 
 echo "Checking if S3 bucket $BUCKET_NAME exists ..."
 if [[ `aws s3api list-buckets --query "Buckets[].Name" | grep "$BUCKET_NAME"` ]];
