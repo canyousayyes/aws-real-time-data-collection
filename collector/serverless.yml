@@ -3,8 +3,8 @@
 service: SampleDataCollector
 
 custom:
-  firehoseName: sample-data-collection
   awsAccountId: "FILL_ME"
+  firehoseName: sample_data_firehose
 
 provider:
   name: aws
