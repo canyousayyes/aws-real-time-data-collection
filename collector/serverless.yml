@@ -34,3 +34,4 @@ functions:
       - http:
           path: /collect
           method: POST
+          cors: true
