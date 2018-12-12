@@ -6,7 +6,7 @@ plugins:
   - serverless-plugin-existing-s3
 
 custom:
-  bucketName: ""
+  bucketName: "FILL_ME"
   sourcePrefix: sample_data_firehose
   database: default
   table: sample_data_firehose
